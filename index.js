@@ -35,18 +35,7 @@ app.get("/gettodos", (req, res) => {
   res.json({ todos: alltodos });
 });
 
-app.get("/test", (req, res) => {
-  res.json({
-    success: true,
-    routes: [
-      "GET /",
-      "GET /gettodos",
-      "POST /addtodo",
-      "PUT /:id",
-      "DELETE /:id"
-    ]
-  });
-});
+
 // get single todo
 
 app.get("/gettodo/:id", (req, res) => {
