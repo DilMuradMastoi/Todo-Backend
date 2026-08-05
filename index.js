@@ -56,7 +56,7 @@ app.get("/gettodo/:id", (req, res) => {
 
 // delete todo
 
-app.delete("/deletetodo/:id", (req, res) => {
+app.delete("/:id", (req, res) => {
   const { id } = req.params;
   const todoIndex = alltodos.findIndex((todo) => todo.id === +id);
   if (todoIndex === -1) {
@@ -68,7 +68,7 @@ app.delete("/deletetodo/:id", (req, res) => {
 
 // edit todo
 
-app.put("/edittodo/:id", (req, res) => {
+app.put("/:id", (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
   const todoIndex = alltodos.findIndex((todo) => todo.id === +id);
