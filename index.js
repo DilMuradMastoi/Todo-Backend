@@ -48,6 +48,19 @@ app.get("/gettodo/:id", (req, res) => {
   res.json({ todo: alltodos[todoIndex] });
 });
 
+app.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    routes: [
+      "GET /",
+      "GET /gettodos",
+      "POST /addtodo",
+      "PUT /:id",
+      "DELETE /:id"
+    ]
+  });
+});
+
 // delete todo
 
 app.delete("/:id", (req, res) => {
