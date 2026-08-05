@@ -37,7 +37,14 @@ app.get("/gettodos", (req, res) => {
 
 app.get("/test", (req, res) => {
   res.json({
-    message: "New backend is running",
+    success: true,
+    routes: [
+      "GET /",
+      "GET /gettodos",
+      "POST /addtodo",
+      "PUT /:id",
+      "DELETE /:id"
+    ]
   });
 });
 // get single todo
