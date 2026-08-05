@@ -6,14 +6,7 @@ const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
-const alltodos = [
-  {
-    title: "First Todo",
-    description:
-      "this is my first todo",
-    id: 1,
-  },
-];
+const alltodos = [];
 
 app.use(express.json());
 
@@ -42,6 +35,11 @@ app.get("/gettodos", (req, res) => {
   res.json({ todos: alltodos });
 });
 
+app.get("/test", (req, res) => {
+  res.json({
+    message: "New backend is running",
+  });
+});
 // get single todo
 
 app.get("/gettodo/:id", (req, res) => {
@@ -57,28 +55,49 @@ app.get("/gettodo/:id", (req, res) => {
 // delete todo
 
 app.delete("/:id", (req, res) => {
-  const { id } = req.params;
-  const todoIndex = alltodos.findIndex((todo) => todo.id === +id);
+  const id = Number(req.params.id);
+
+  const todoIndex = alltodos.findIndex(
+    (todo) => todo.id === id
+  );
+
   if (todoIndex === -1) {
-    return res.status(404).json({ message: "Todo not found" });
+    return res.status(404).json({
+      message: "Todo not found",
+    });
   }
+
   alltodos.splice(todoIndex, 1);
-  res.json({ message: "Todo deleted successfully" });
+
+  res.json({
+    message: "Deleted",
+    todos: alltodos,
+  });
 });
 
 // edit todo
 
+
 app.put("/:id", (req, res) => {
-  const { id } = req.params;
+  const id = Number(req.params.id);
   const { title } = req.body;
-  const todoIndex = alltodos.findIndex((todo) => todo.id === +id);
+
+  const todoIndex = alltodos.findIndex(
+    (todo) => todo.id === id
+  );
 
   if (todoIndex === -1) {
-    return res.status(404).json({ message: "Todo not found" });
+    return res.status(404).json({
+      message: "Todo not found",
+    });
   }
 
   alltodos[todoIndex].title = title;
-  res.json({ message: "Todo updated successfully", todo: alltodos[todoIndex] });
+
+  res.json({
+    message: "Todo updated successfully",
+    todo: alltodos[todoIndex],
+  });
 });
 
 app.listen(port, () => {
