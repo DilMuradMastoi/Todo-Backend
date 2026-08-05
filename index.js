@@ -1,114 +1,168 @@
 import express from "express";
-import { v4 as uuidv4 } from "uuid";
 import cors from "cors";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(cors());
-const port = process.env.PORT || 3000;
-
-const alltodos = [];
-
 app.use(express.json());
 
+// In-memory storage
+// NOTE: Data will reset whenever the server restarts.
+// For production, use MongoDB, Firestore, PostgreSQL, etc.
+let todos = [];
+
+// =====================
+// Home Route
+// =====================
 app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-// add todo
-
-app.post("/addtodo", (req, res) => {
-  const { title, description } = req.body;
-  alltodos.push({
-    title,
-    description,
-    id: Date.now(),
-  });
-  res.status(201).json({
-    message: "Todo added successfully",
-    todos: alltodos,
+  res.json({
+    success: true,
+    message: "Todo Backend Running 🚀",
   });
 });
 
-// get all todos
-
-app.get("/gettodos", (req, res) => {
-  res.json({ todos: alltodos });
-});
-
-
-// get single todo
-
-app.get("/gettodo/:id", (req, res) => {
-  const { id } = req.params;
-  const todoIndex = alltodos.findIndex((todo) => todo.id === +id);
-  console.log("api running");
-  if (todoIndex === -1) {
-    return res.status(404).json({ message: "Todo not found" });
-  }
-  res.json({ todo: alltodos[todoIndex] });
-});
-
+// =====================
+// Test Route
+// =====================
 app.get("/test", (req, res) => {
   res.json({
     success: true,
     routes: [
       "GET /",
+      "GET /test",
       "GET /gettodos",
+      "GET /gettodo/:id",
       "POST /addtodo",
-      "PUT /:id",
-      "DELETE /:id"
-    ]
+      "PUT /updatetodo/:id",
+      "DELETE /deletetodo/:id",
+    ],
   });
 });
 
-// delete todo
+// =====================
+// Get All Todos
+// =====================
+app.get("/gettodos", (req, res) => {
+  res.status(200).json({
+    success: true,
+    todos,
+  });
+});
 
-app.delete("/:id", (req, res) => {
+// =====================
+// Get Single Todo
+// =====================
+app.get("/gettodo/:id", (req, res) => {
   const id = Number(req.params.id);
 
-  const todoIndex = alltodos.findIndex(
-    (todo) => todo.id === id
-  );
+  const todo = todos.find((t) => t.id === id);
 
-  if (todoIndex === -1) {
+  if (!todo) {
     return res.status(404).json({
+      success: false,
       message: "Todo not found",
     });
   }
 
-  alltodos.splice(todoIndex, 1);
-
   res.json({
-    message: "Deleted",
-    todos: alltodos,
+    success: true,
+    todo,
   });
 });
 
-// edit todo
+// =====================
+// Add Todo
+// =====================
+app.post("/addtodo", (req, res) => {
+  const { title, description } = req.body;
 
+  if (!title || !description) {
+    return res.status(400).json({
+      success: false,
+      message: "Title and Description are required.",
+    });
+  }
 
-app.put("/:id", (req, res) => {
+  const newTodo = {
+    id: Date.now(),
+    title,
+    description,
+    completed: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  todos.push(newTodo);
+
+  res.status(201).json({
+    success: true,
+    message: "Todo added successfully.",
+    todo: newTodo,
+    todos,
+  });
+});
+
+// =====================
+// Update Todo
+// =====================
+app.put("/updatetodo/:id", (req, res) => {
   const id = Number(req.params.id);
-  const { title } = req.body;
 
-  const todoIndex = alltodos.findIndex(
-    (todo) => todo.id === id
-  );
+  const { title, description } = req.body;
 
-  if (todoIndex === -1) {
+  const index = todos.findIndex((todo) => todo.id === id);
+
+  if (index === -1) {
     return res.status(404).json({
+      success: false,
       message: "Todo not found",
     });
   }
 
-  alltodos[todoIndex].title = title;
+  if (title !== undefined) {
+    todos[index].title = title;
+  }
+
+  if (description !== undefined) {
+    todos[index].description = description;
+  }
 
   res.json({
-    message: "Todo updated successfully",
-    todo: alltodos[todoIndex],
+    success: true,
+    message: "Todo updated successfully.",
+    todo: todos[index],
+    todos,
   });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+// =====================
+// Delete Todo
+// =====================
+app.delete("/deletetodo/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  const index = todos.findIndex((todo) => todo.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
+      success: false,
+      message: "Todo not found",
+    });
+  }
+
+  todos.splice(index, 1);
+
+  res.json({
+    success: true,
+    message: "Todo deleted successfully.",
+    todos,
+  });
+});
+
+// =====================
+// Start Server
+// =====================
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
